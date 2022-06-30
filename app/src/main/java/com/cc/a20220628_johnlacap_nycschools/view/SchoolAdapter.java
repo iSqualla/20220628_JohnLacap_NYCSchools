@@ -52,24 +52,19 @@ public class SchoolAdapter extends RecyclerView.Adapter<SchoolAdapter.SchoolView
 
     public class SchoolViewHolder extends RecyclerView.ViewHolder {
 
-        private TextView schoolDbn;
         private TextView schoolName;
 
         public SchoolViewHolder(@NonNull View itemView) {
             super(itemView);
-//            schoolDbn = itemView.findViewById(R.id.school_item_dbn);
             schoolName = itemView.findViewById(R.id.school_item_school_name);
         }
 
         public void bind(NYCSchoolResponse dataItem, Listener.ListClickEvent clickEvent) {
-//            schoolDbn.setText(
-//                    dataItem.getDbn()
-//            );
             schoolName.setText(
                     dataItem.getSchool_name()
             );
             itemView.setOnClickListener(view->
-                    clickEvent.clickDetails(dataItem.getDbn(), dataItem.getSchool_name())
+                    clickEvent.clickDetails(dataItem.getDbn(), dataItem.getSchool_name(), dataItem.getLocation(), dataItem.getSchool_email(), dataItem.getPhone_number())
             );
         }
     }

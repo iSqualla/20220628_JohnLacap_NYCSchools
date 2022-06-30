@@ -11,11 +11,11 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.GridLayoutManager;
-import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.cc.a20220628_johnlacap_nycschools.R;
-import com.cc.a20220628_johnlacap_nycschools.di.Injector;
+import com.cc.a20220628_johnlacap_nycschools.databinding.SchoolDisplayFragmentLayoutBinding;
+import com.cc.a20220628_johnlacap_nycschools.model.Repository;
 import com.cc.a20220628_johnlacap_nycschools.model.pojo.NYCSchoolResponse;
 import com.cc.a20220628_johnlacap_nycschools.model.state.Error;
 import com.cc.a20220628_johnlacap_nycschools.model.state.SuccessSchoolResponse;
@@ -25,13 +25,22 @@ import com.cc.a20220628_johnlacap_nycschools.view.viewmodel.SchoolViewModelProvi
 
 import java.util.List;
 
+import javax.inject.Inject;
+
+import dagger.hilt.android.AndroidEntryPoint;
+
+@AndroidEntryPoint
 public class SchoolDisplay extends Fragment implements Listener.ListClickEvent{
 
+    @Inject
+    Repository repository;
+    @Inject
+    SchoolViewModelProvider schoolViewModelProvider;
+
+    private SchoolDisplayFragmentLayoutBinding binding;
     private SchoolViewModel viewModel;
-    private RecyclerView schoolList;
     private SchoolAdapter adapter;
     private Listener listener;
-    private SchoolViewModelProvider schoolViewModelProvider = Injector.getInstance().provideProvider();
 
     @Override
     public void onAttach(@NonNull Context context) {
@@ -48,11 +57,11 @@ public class SchoolDisplay extends Fragment implements Listener.ListClickEvent{
                              @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
-        View view = inflater.inflate(
-                R.layout.school_display_fragment_layout
-                , container,
-                false);
-        initViews(view);
+        binding = SchoolDisplayFragmentLayoutBinding.inflate(inflater, container, false);
+        View view = binding.getRoot();
+
+        binding.schoolList.setLayoutManager(new GridLayoutManager(getContext(), 3, RecyclerView.VERTICAL, false));
+
         initObservables();
         return view;
     }
@@ -75,16 +84,11 @@ public class SchoolDisplay extends Fragment implements Listener.ListClickEvent{
 
     private void updateAdapter(List<NYCSchoolResponse> data) {
         adapter = new SchoolAdapter(data, this);
-        schoolList.setAdapter(adapter);
-    }
-
-    private void initViews(View view) {
-        schoolList = view.findViewById(R.id.school_list);
-        schoolList.setLayoutManager(new GridLayoutManager(getContext(), 3, RecyclerView.VERTICAL, false));
+        binding.schoolList.setAdapter(adapter);
     }
 
     @Override
-    public void clickDetails(String dbn, String name) {
-        listener.openDetails(dbn, name);
+    public void clickDetails(String dbn, String name, String loc, String email, String phone) {
+        listener.openDetails(dbn, name, loc, email, phone);
     }
 }

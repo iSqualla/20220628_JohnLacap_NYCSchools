@@ -4,7 +4,6 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -12,7 +11,8 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.cc.a20220628_johnlacap_nycschools.R;
-import com.cc.a20220628_johnlacap_nycschools.di.Injector;
+import com.cc.a20220628_johnlacap_nycschools.databinding.SchoolDetailsFragmentLayoutBinding;
+import com.cc.a20220628_johnlacap_nycschools.model.Repository;
 import com.cc.a20220628_johnlacap_nycschools.model.pojo.NYCSATResponse;
 import com.cc.a20220628_johnlacap_nycschools.model.state.Error;
 import com.cc.a20220628_johnlacap_nycschools.model.state.SuccessSATResponse;
@@ -20,36 +20,64 @@ import com.cc.a20220628_johnlacap_nycschools.model.state.UIState;
 import com.cc.a20220628_johnlacap_nycschools.view.viewmodel.SchoolViewModel;
 import com.cc.a20220628_johnlacap_nycschools.view.viewmodel.SchoolViewModelProvider;
 
+import javax.inject.Inject;
+
+import dagger.hilt.android.AndroidEntryPoint;
+
+@AndroidEntryPoint
 public class SchoolDetails extends Fragment {
+
+    @Inject
+    Repository repository;
+
+    @Inject
+    SchoolViewModelProvider schoolViewModelProvider;
 
     private static final String KEY_DBN = "KEY_DBN_SCHOOL_DETAILS";
     private static final String KEY_NAME = "KEY_NAME_SCHOOL_DETAILS";
+    private static final String KEY_LOC = "KEY_LOC_SCHOOL_DETAILS";
+    private static final String KEY_PHONE = "KEY_PHONE_SCHOOL_DETAILS";
+    private static final String KEY_EMAIL = "KEY_EMAIL_SCHOOL_DETAILS";
+
+
+    private SchoolDetailsFragmentLayoutBinding binding;
     private SchoolViewModel viewModel;
-    private TextView schoolName;
-    private TextView schoolSatDBN;
-    private TextView schoolSatName;
-    private TextView schoolSatTakers;
-    private TextView schoolSatMath;
-    private TextView schoolSatWriting;
-    private TextView schoolSatReading;
     private String schoolNameStr;
-    private SchoolViewModelProvider schoolViewModelProvider= Injector.getInstance().provideProvider();
+    private String schoolLocStr;
+    private String schoolEmailStr;
+    private String schoolPhoneStr;
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
-        View view = inflater.inflate(R.layout.school_details_fragment_layout, container, false);
-        initViews(view);
+        binding = SchoolDetailsFragmentLayoutBinding.inflate(inflater, container, false);
+        View view = binding.getRoot();
+
         initObservables();
 
         if (getArguments().getString(KEY_DBN) != null)
             viewModel.getSatDetails(getArguments().getString(KEY_DBN));
 
         if (getArguments().getString(KEY_NAME) != null)
-            schoolNameStr = getArguments().getString(KEY_DBN);
+            schoolNameStr = getArguments().getString(KEY_NAME);
+
+        if (getArguments().getString(KEY_LOC) != null)
+            schoolLocStr = getArguments().getString(KEY_LOC).substring(0, (getArguments().getString(KEY_LOC).indexOf('(')));
+
+        if (getArguments().getString(KEY_PHONE) != null)
+            schoolPhoneStr = getArguments().getString(KEY_PHONE);
+
+        if (getArguments().getString(KEY_EMAIL) != null)
+            schoolEmailStr = getArguments().getString(KEY_EMAIL);
 
         return view;
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        binding = null;
     }
 
     private void initObservables() {
@@ -65,34 +93,41 @@ public class SchoolDetails extends Fragment {
     }
 
     private void showError(String errorMessage) {
-
     }
 
     private void updateView(NYCSATResponse data) {
-//        schoolName.setText(schoolNameStr);
-        schoolSatDBN.setText(data.getDbn());
-        schoolSatTakers.setText(data.getNum_of_sat_test_takers());
-        schoolSatReading.setText(data.getSat_critical_reading_avg_score());
-        schoolSatWriting.setText(data.getSat_writing_avg_score());
-        schoolSatMath.setText(data.getSat_math_avg_score());
-        schoolSatName.setText(data.getSchool_name());
+        String takers = getString(R.string.sat_takers) + data.getNum_of_sat_test_takers();
+        String math = getString(R.string.sat_math) + data.getSat_math_avg_score();
+        String read = getString(R.string.sat_read) + data.getSat_critical_reading_avg_score();
+        String write = getString(R.string.sat_write) + data.getSat_writing_avg_score();
+
+        binding.schoolName.setText(schoolNameStr);
+        binding.schoolLocation.setText(schoolLocStr);
+        binding.schoolEmail.setText(schoolEmailStr);
+        binding.schoolPhone.setText(schoolPhoneStr);
+
+
+        if(data.getDbn() == null || data.getSchool_name() == null || data.getNum_of_sat_test_takers() == null
+                || data.getSat_math_avg_score() == null || data.getSat_writing_avg_score() == null || data.getSat_critical_reading_avg_score() == null){
+            binding.satDetails.setText(R.string.sat_na);
+        }
+        else {
+            binding.satDetails.setText(R.string.sat_details);
+            binding.schoolDetailsSatTakers.setText(takers);
+            binding.schoolDetailsSatReading.setText(read);
+            binding.schoolDetailsSatWriting.setText(write);
+            binding.schoolDetailsSatMath.setText(math);
+        }
     }
 
-    private void initViews(View view) {
-//        schoolName = view.findViewById(R.id.school_details_school_name);
-        schoolSatDBN = view.findViewById(R.id.school_details_dbn);
-        schoolSatName = view.findViewById(R.id.school_details_name);
-        schoolSatTakers = view.findViewById(R.id.school_details_sat_takers);
-        schoolSatMath = view.findViewById(R.id.school_details_sat_math);
-        schoolSatWriting = view.findViewById(R.id.school_details_sat_writing);
-        schoolSatReading = view.findViewById(R.id.school_details_sat_reading);
-    }
-
-    public static Fragment getInstance(String dbn, String name) {
+    public static Fragment getInstance(String dbn, String name, String loc, String email, String phone) {
         SchoolDetails fragment = new SchoolDetails();
         Bundle bundle = new Bundle();
         bundle.putString(KEY_DBN, dbn);
         bundle.putString(KEY_NAME, name);
+        bundle.putString(KEY_LOC, loc);
+        bundle.putString(KEY_EMAIL, email);
+        bundle.putString(KEY_PHONE, phone);
         fragment.setArguments(bundle);
         return fragment;
     }

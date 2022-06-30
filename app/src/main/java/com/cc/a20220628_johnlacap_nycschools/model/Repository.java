@@ -2,6 +2,7 @@ package com.cc.a20220628_johnlacap_nycschools.model;
 
 import com.cc.a20220628_johnlacap_nycschools.model.state.UIState;
 
+import dagger.Provides;
 import io.reactivex.rxjava3.core.Single;
 
 public interface Repository {

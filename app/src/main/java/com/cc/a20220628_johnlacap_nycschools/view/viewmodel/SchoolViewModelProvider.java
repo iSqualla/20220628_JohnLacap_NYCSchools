@@ -6,10 +6,13 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.cc.a20220628_johnlacap_nycschools.model.Repository;
 
+import javax.inject.Inject;
+
 public class SchoolViewModelProvider implements ViewModelProvider.Factory {
 
     private Repository repository;
 
+    @Inject
     public SchoolViewModelProvider(Repository repository){
         this.repository = repository;
     }

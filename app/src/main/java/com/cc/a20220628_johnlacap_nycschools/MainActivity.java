@@ -8,6 +8,9 @@ import com.cc.a20220628_johnlacap_nycschools.view.Listener;
 import com.cc.a20220628_johnlacap_nycschools.view.SchoolDetails;
 import com.cc.a20220628_johnlacap_nycschools.view.SchoolDisplay;
 
+import dagger.hilt.android.AndroidEntryPoint;
+
+@AndroidEntryPoint
 public class MainActivity extends AppCompatActivity implements Listener {
 
     @Override
@@ -24,9 +27,9 @@ public class MainActivity extends AppCompatActivity implements Listener {
     }
 
     @Override
-    public void openDetails(String dbn, String name) {
+    public void openDetails(String dbn, String name, String loc, String email, String phone) {
         getSupportFragmentManager().beginTransaction()
-                .replace(R.id.fragment_container, new SchoolDetails().getInstance(dbn, name))
+                .replace(R.id.fragment_container, new SchoolDetails().getInstance(dbn, name, loc, email, phone))
                 .addToBackStack(null)
                 .commit();
     }

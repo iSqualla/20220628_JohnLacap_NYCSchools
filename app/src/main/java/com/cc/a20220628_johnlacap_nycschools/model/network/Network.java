@@ -8,7 +8,7 @@ public class Network {
     private Network() {
     }
 
-    private static Object lock = new Object();
+    private static final Object lock = new Object();
     private static Network INSTANCE;
     private SchoolService SERVICE;
 

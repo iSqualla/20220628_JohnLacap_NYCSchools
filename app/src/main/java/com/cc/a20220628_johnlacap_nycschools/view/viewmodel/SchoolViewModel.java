@@ -11,19 +11,24 @@ import com.cc.a20220628_johnlacap_nycschools.model.Repository;
 import com.cc.a20220628_johnlacap_nycschools.model.state.SuccessSATResponse;
 import com.cc.a20220628_johnlacap_nycschools.model.state.UIState;
 
+import javax.inject.Inject;
+
+import dagger.hilt.android.lifecycle.HiltViewModel;
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.core.SingleObserver;
 import io.reactivex.rxjava3.disposables.Disposable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 
+@HiltViewModel
 public class SchoolViewModel extends ViewModel {
 
     private MutableLiveData<UIState> _schoolState = new MutableLiveData<>();
     public LiveData<UIState> schoolState(){
         return _schoolState;
     }
-    private Repository repository;
+    private final Repository repository;
 
+    @Inject
     public SchoolViewModel(Repository repository){
         this.repository = repository;
         init();
